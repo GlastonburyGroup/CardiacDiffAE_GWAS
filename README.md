@@ -1,1 +1,3 @@
-# CardiacDiffAE_GWAS
+# Unsupervised cardiac MRI phenotyping with 3D diffusion autoencoders reveals novel genetic insights
+
+The official code for the paper, "Unsupervised Cardiac MRI Phenotyping with 3D Diffusion Autoencoders Reveals Novel Genetic Insights". This repository contains all scripts used in this project, except for the deep learning pipeline (DL-pipeline). It includes scripts for pre-processing raw datasets from the UK Biobank, post-processing and analysing the latent embeddings, as well as conducting downstream analyses. The deep learning pipeline for unsupervised latent phenotyping using the 3D diffusion autoencoder can be found here: https://github.com/GlastonburyGroup/ImLatent[https://github.com/GlastonburyGroup/ImLatent].
