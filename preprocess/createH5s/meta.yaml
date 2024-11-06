@@ -1,0 +1,39 @@
+####### Explanation of the meta.yaml file
+#Field ID
+    #desctags:
+        #primary_data: List of series descriptions (individual strings) for the primary data
+        #auxiliary_data: List of lists of series descriptions (each sublist containing the different individual strings for that type of data) for the auxiliary data
+        #auxiliary_data_tags (optional, only required if there are auxiliary data): List of tags to be used for the auxilary data 
+    #is_complex: True if the data is complex, False if it is only magnitude
+    #is_3D: [for individual series, the dim(s) present in the actual series when it's read] True if the data is 3D, False if it is 2D
+    #is_dynamic: [for individual series, the dim(s) present in the actual series when it's read] True if the data is dynamic, False if it is not
+    #multi_channel: [for individual series, the dim(s) present in the actual series when it's read] True if the data is multi-channel (e.g. multi-echo, multi-contrast), False if it is not
+    #stack_dim (optional): Which dim to use for stacking the different series together (e.g. if it is dynamic, there will be different series for each time point, so this is the dim to stack them along)
+
+# Please note: the final data should be 5D with the following dimensions: Channel : Time : Slice : X : Y 
+
+#######Heart
+F20208:
+    desctags:
+        primary_data: ['CINE_segmented_LAX_3Ch', 'CINE_segmented_LAX_4Ch', 'CINE_segmented_LAX_2Ch']
+        primary_data_tags: ['LAX_3Ch', 'LAX_4Ch', 'LAX_2Ch']
+        auxiliary_data: [] 
+    multi_primary: True
+    repeat_acq: True
+    is_complex: False
+    is_3D: False
+    is_dynamic: True #50 TPs, 6-8 heartbeats (the ones I checked)
+    multi_channel: False 
+
+########Dummy
+dummy: #it is based on the F20208
+    desctags:
+        primary_data: ['CINE_segmented_LAX_3Ch', 'CINE_segmented_LAX_4Ch', 'CINE_segmented_LAX_2Ch']
+        primary_data_tags: ['LAX_3Ch', 'LAX_4Ch', 'LAX_2Ch']
+        auxiliary_data: [] 
+    multi_primary: True
+    repeat_acq: True
+    is_complex: False
+    is_3D: False
+    is_dynamic: True #50 TPs, 6-8 heartbeats (the ones I checked)
+    multi_channel: False 
