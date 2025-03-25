@@ -2,23 +2,13 @@
 <html>
 
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-B0DD7GCKC0"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-B0DD7GCKC0');
-  </script>
-
   <meta charset="utf-8">
   <!-- Meta tags for social media banners, these should be filled in appropriatly as they are your "business card" -->
   <!-- Replace the content tag with appropriate information -->
   <meta name="description"
     content="This study leverages biobank-scale cardiac MRI data to automatically derive structural and functional cardiac phenotypes, avoiding the need for manual annotation. Using a 3D diffusion autoencoder, the team generated reproducible, heritable latent phenotypes from temporally resolved MRIs of over 71,000 UK Biobank participants. These phenotypes correlated significantly with cardiometabolic outcomes, such as atrial fibrillation and myocardial infarction. Through genetic analysis, 89 significant genetic variants were linked to these phenotypes, uncovering shared genetic architecture with cardiac traits and diseases. Polygenic Risk Scores based on the latent phenotypes predicted cardiometabolic disease risk, demonstrating that diffusion autoencoding can effectively support unsupervised phenotyping, genetic insights, and disease risk forecasting from cardiac imaging data.">
   <meta property="og:title"
-    content="Unsupervised cardiac MRI phenotyping with 3D diffusion autoencoders reveals novel genetic insights" />
+    content="Hundreds of cardiac MRI traits derived using 3D diffusion autoencoders share a common genetic architecture" />
   <meta property="og:description"
     content="This study leverages biobank-scale cardiac MRI data to automatically derive structural and functional cardiac phenotypes, avoiding the need for manual annotation. Using a 3D diffusion autoencoder, the team generated reproducible, heritable latent phenotypes from temporally resolved MRIs of over 71,000 UK Biobank participants. These phenotypes correlated significantly with cardiometabolic outcomes, such as atrial fibrillation and myocardial infarction. Through genetic analysis, 89 significant genetic variants were linked to these phenotypes, uncovering shared genetic architecture with cardiac traits and diseases. Polygenic Risk Scores based on the latent phenotypes predicted cardiometabolic disease risk, demonstrating that diffusion autoencoding can effectively support unsupervised phenotyping, genetic insights, and disease risk forecasting from cardiac imaging data." />
   <meta property="og:url" content="https://glastonburygroup.github.io/CardiacDiffAE_GWAS/" />
@@ -29,7 +19,7 @@
 
 
   <meta name="twitter:title"
-    content="Unsupervised cardiac MRI phenotyping with 3D diffusion autoencoders reveals novel genetic insights">
+    content="Hundreds of cardiac MRI traits derived using 3D diffusion autoencoders share a common genetic architecture">
   <meta name="twitter:description"
     content="This study leverages biobank-scale cardiac MRI data to automatically derive structural and functional cardiac phenotypes, avoiding the need for manual annotation. Using a 3D diffusion autoencoder, the team generated reproducible, heritable latent phenotypes from temporally resolved MRIs of over 71,000 UK Biobank participants. These phenotypes correlated significantly with cardiometabolic outcomes, such as atrial fibrillation and myocardial infarction. Through genetic analysis, 89 significant genetic variants were linked to these phenotypes, uncovering shared genetic architecture with cardiac traits and diseases. Polygenic Risk Scores based on the latent phenotypes predicted cardiometabolic disease risk, demonstrating that diffusion autoencoding can effectively support unsupervised phenotyping, genetic insights, and disease risk forecasting from cardiac imaging data.">
   <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X600-->
@@ -41,7 +31,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-  <title>Unsupervised cardiac MRI phenotyping with 3D diffusion autoencoders reveals novel genetic insights</title>
+  <title>Hundreds of cardiac MRI traits derived using 3D diffusion autoencoders share a common genetic architecture
+  </title>
   <link rel="icon" type="image/x-icon" href="static/images/heart3.ico">
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
 
@@ -79,7 +70,7 @@
                 <a href="https://www.soumick.com/" target="_blank">Soumick Chatterjee</a><sup>1,*</sup>,</span>
               <span class="author-block">
                 <a href="https://humantechnopole.it/en/people/andrea-mario-vergani/" target="_blank">Andrea Mario
-                  Vergani</a><sup>2,3</sup>,
+                  Vergani</a><sup>1,2</sup>,
               </span>
               <span class="author-block">
                 <a href="https://humantechnopole.it/en/people/arianna-landini/" target="_blank">Arianna
@@ -112,12 +103,16 @@
                   Cisternino</a><sup>1</sup>,
               </span>
               <span class="author-block">
+                <a href="https://www.humanitas.it/medici/carlo-andrea-pivato/" target="_blank">Carlo Andrea
+                  Pivato</a><sup>3,4</sup>,
+              </span>
+              <span class="author-block">
                 <a href="https://sites.google.com/view/francesca-ieva/home" target="_blank">Francesca
-                  Ieva</a><sup>2,3</sup>,
+                  Ieva</a><sup>1,2</sup>,
               </span>
               <span class="author-block">
                 <a href="https://humantechnopole.it/en/people/emanuele-di-angelantonio/" target="_blank">Emanuele Di
-                  Angelantonio</a><sup>2</sup>,
+                  Angelantonio</a><sup>1</sup>,
               </span>
               <span class="author-block">
                 <a href="https://humantechnopole.it/en/people/nicola-pirastu/" target="_blank">Nicola
@@ -130,12 +125,12 @@
             </div>
 
             <div class="is-size-5 publication-authors">
-              <span class="author-block"><sup>1</sup>Genomics Research Centre, Human Technopole, Milan, Italy
-                <br><sup>2</sup>Health Data Science Research Centre, Human Technopole, Milan, Italy
-                <br><sup>3</sup>Department of Mathematics, Politecnico di Milano, Italy
+              <span class="author-block"><sup>1</sup>Human Technopole, Milan, Italy
+                <br><sup>2</sup>Department of Mathematics, Politecnico di Milano, Italy
+                <br><sup>3</sup>Department of Biomedical Sciences, Humanitas University, Milan, Italy
+                <br><sup>4</sup>RCCS Humanitas Research Hospital, Milan, Italy
                 <br>Email: {sara.ometto, soumick.chatterjee, craig.glastonbury}@fht.org
-                <br><big><a href="https://doi.org/10.1101/2024.11.04.24316700" target="_blank">medRxiv
-                    10.1101/2024.11.04.24316700</a></big>
+                <br><big>Preprint will be available soon!</big>
               </span>
               <span class="eql-cntrb"><small><br><sup>*</sup>Indicates Equal Contribution</small></span>
             </div>
@@ -256,25 +251,27 @@
         <div class="column is-four-fifths">
           <h2 class="title is-3">Abstract</h2>
           <div class="content has-text-justified">
-            <p>Biobank-scale imaging provides a unique opportunity to characterise structural and functional cardiac
-              phenotypes and how they relate to disease outcomes. However, deriving specific phenotypes from MRI data
-              requires time-consuming expert annotation, limiting scalability and does not exploit how information-dense
-              such image acquisitions are. In this study, we applied a 3D diffusion autoencoder to temporally resolved
-              cardiac Magnetic Resonance Imaging (MRI) data from 71,021 UK Biobank participants to derive latent
-              phenotypes representing the human heart in motion. These phenotypes were reproducible, heritable
-              (<i>h<sup>2</sup> = [4 - 18%]</i>), and significantly associated with cardiometabolic traits and outcomes,
-              including atrial fibrillation (<i>P = 8.5 × 10<sup>-29</sup></i>) and myocardial infarction (<i>P = 3.7 ×
-                10<sup>-12</sup></i>). By using latent space manipulation techniques, we directly interpreted and
-              visualised what specific latent phenotypes were capturing in a given MRI. To establish the genetic basis
-              of such traits, we performed a genome-wide association study, identifying 89 significant common variants
-              (<i>P < 2.3 × 10<sup>-9</sup></i>) across 42 loci, including seven novel loci. Extensive multi-trait
-              colocalisation analyses (<i>PP.H<sub>4</sub> > 0.8</i>) linked these variants to various cardiac traits
-              and diseases, revealing a shared genetic architecture spanning phenotypic scales. Polygenic Risk Scores
-              (PRS) derived from latent phenotypes demonstrated predictive power for a range of cardiometabolic
-              diseases, and high-risk individuals had substantially increased cumulative hazard rates across a range of
-              diseases. This study showcases the use of diffusion autoencoding methods as powerful tools for
-              unsupervised phenotyping, genetic discovery, and disease risk prediction using cardiac MRI imaging data.
-            </p>
+            <p>Biobank-scale imaging provides an unprecedented opportunity to characterise thousands of organ
+              phenotypes, how they vary in populations and how they relate to disease outcomes. However, deriving
+              specific phenotypes from imaging data, such as Magnetic Resonance Imaging (MRI), requires time-consuming
+              expert annotation, limiting scalability, and does not exploit how information-dense such image
+              acquisitions are. In this study, we developed a 3D diffusion autoencoder to derive latent phenotypes from
+              temporally resolved cardiac MRI data of 71,021 UK Biobank participants. These phenotypes were
+              reproducible, heritable (<i>h<sup>2</sup></i> = [4 - 18%]), and significantly associated with
+              cardiometabolic traits and outcomes, including atrial fibrillation (<i>P</i> = 8.5 &times;
+              10<sup>-29</sup>) and myocardial infarction (<i>P</i> = 3.7 &times; 10<sup>-12</sup>). By using latent
+              space manipulation techniques, we were able to learn, directly interpret and visualise what specific
+              latent phenotypes are capturing in a given MRI. To establish the genetic basis of such traits, we
+              performed a genome-wide association study, identifying 89 significant common variants (<i>P</i> &lt; 2.3
+              &times; 10<sup>-9</sup>) across 42 loci, including seven novel loci. Extensive multi-trait colocalisation
+              analyses (PP.H<sub>4</sub> &gt; 0.8) linked variants across phenotypic scales, from intermediate cardiac
+              traits to cardiac disease endpoints. For example, rs142556838 that falls in <i>CCDC141</i> colocalises
+              with a latent imaging phenotype and a diastolic blood pressure locus. Using single-cell RNA-sequencing
+              data we map <i>CCDC141</i> expression specifically to a population of ventricular cardiomyocytes. Finally,
+              Polygenic Risk Scores (PRS) derived from latent phenotypes demonstrated predictive power for a range of
+              cardiometabolic diseases and enabled us to successfully stratify the individuals into different risk
+              groups. In conclusion, this study showcases the use of diffusion autoencoding methods as powerful tools
+              for unsupervised phenotyping, genetic discovery and disease risk prediction using cardiac MRI data.</p>
           </div>
         </div>
       </div>
