@@ -11,7 +11,6 @@ import argparse
 import pandas as pd
 import os
 from tqdm import tqdm
-import SimpleITK as sitk
 import tempfile
 import logging
 from tricorder.mri.data.dicom import ReadSeries

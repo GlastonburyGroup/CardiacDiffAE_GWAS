@@ -4,8 +4,6 @@ import os
 import pandas as pd
 from tqdm import tqdm
 
-import h5py
-
 from ..H5tools.utils import merge_hdf5
 
 parser = argparse.ArgumentParser()

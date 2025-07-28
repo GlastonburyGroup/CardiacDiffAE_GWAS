@@ -6,7 +6,6 @@ This is a generic version, was used for the creation of the HDF5 files for the s
 
 from glob import glob
 from zipfile import ZipFile
-import h5py
 import argparse
 import pandas as pd
 import os
@@ -15,10 +14,6 @@ import SimpleITK as sitk
 import tempfile
 import logging
 from tricorder.mri.data.dicom import ReadSeries
-import json
-import sys
-import contextlib
-import yaml
 import numpy as np
 import collections 
 from collections import Counter
