@@ -4,6 +4,13 @@ The official code for the paper, "Hundreds of cardiac MRI traits derived using 3
 
 This repository is organised into multiple folders, each containing standalone scripts for specific purposes. Additional scripts (e.g., for launching GWAS, performing post-GWAS analyses, PRS modelling, etc.) will be uploaded in the near future, along with detailed documentation. In the meantime, contact us for any questions or requests (Email: soumick.chatterjee@fht.org)
 
+## Execution
+To simplify the installation of packages, [Poetry](https://python-poetry.org/) can be used. Once Poetry is installed, this pipeline can be launched from its root directory without manually installing any dependencies manually by adding `poetry run` before calling Python. For example:
+```python
+    poetry run python preprocess.createH5s.createH5_MR_DICOM.py
+```
+For continuous access in the terminal without adding the `poetry run` prefix to all commands, `poetry shell` (It must be installed additionally: https://github.com/python-poetry/poetry-plugin-shell) can be executed to activate the environment. The other Python commands can then be executed normally.
+
 ## Citation
 If you find this work useful or utilise any code from this repository in your research, please consider citing us:
 ```bibtex
