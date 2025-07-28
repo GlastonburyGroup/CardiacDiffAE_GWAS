@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "cardiacdiffae-gwas"
+version = "0.1.0"
+description = ""
+authors = ["soumick.chatterjee <soumick.chatterjee@fht.org>"]
+readme = "README.md"
+packages = [{include = "cardiacdiffae_gwas"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "^2.3.2"
+pandas = "^2.3.1"
+h5py = "^3.14.0"
+tqdm = "^4.67.1"
+statsmodels = "^0.14.5"
+scikit-learn = "^1.7.1"
+plotly = "^6.2.0"
+zarr = "^3.1.0"
+simpleitk = "^2.5.2"
+tricorder = "^0.1.0"
+scikit-image = "^0.25.2"
+matplotlib = "^3.10.3"
+seaborn = "^0.13.2"
+wordcloud = "^1.9.4"
+nltk = "^3.9.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
