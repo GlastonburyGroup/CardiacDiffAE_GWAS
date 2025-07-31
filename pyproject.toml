@@ -23,6 +23,9 @@ matplotlib = "^3.10.3"
 seaborn = "^0.13.2"
 wordcloud = "^1.9.4"
 nltk = "^3.9.1"
+ipykernel = "^6.30.0"
+autoreload = "^0.1.2"
+ipywidgets = "^8.1.7"
 
 
 [build-system]
