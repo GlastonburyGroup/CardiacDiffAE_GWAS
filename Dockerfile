@@ -21,18 +21,21 @@ version = "0.1.0"
 description = "Dynamically combined environment"
 authors = ["Dockerfile"]
 
+# ADD THIS SECTION to define the custom PyTorch repository
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu118"
+priority = "explicit"
+
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 EOF
 
 # 4. Extract all dependencies from both repos into a single temporary file.
-#    This file WILL contain duplicates.
 RUN awk '/^\[tool\.poetry\.dependencies\]/{p=1;next} /^\[/{p=0} p && !/python =/' /tmp/CardiacDiffAE_GWAS/pyproject.toml > /tmp/combined_deps.txt
 RUN awk '/^\[tool\.poetry\.dependencies\]/{p=1;next} /^\[/{p=0} p && !/python =/' /tmp/ImLatent/pyproject.toml >> /tmp/combined_deps.txt
 
 # 5. De-duplicate the combined list and append it to our pyproject.toml.
-#    The awk command below is key: it de-duplicates based on the package name (the key before the '='),
-#    ensuring each package is listed only once.
 RUN awk -F ' = ' '!seen[$1]++' /tmp/combined_deps.txt >> pyproject.toml
 
 # 6. Install all combined and de-duplicated dependencies.
