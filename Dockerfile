@@ -1,40 +1,27 @@
 # Stage 1: Build the environment
 FROM pytorch/pytorch:2.7.1-cuda11.8-cudnn9-runtime
 
-# Set environment variables for non-interactive setup and Poetry configuration
+# Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive \
     POETRY_NO_INTERACTION=1 \
-    PATH="/root/.local/bin:$PATH"
+    PATH="/root/.local/bin:$PATH" \
+    PYTHONPATH="/app/CardiacDiffAE_GWAS:/app/ImLatent"
 
-# 1. Install system dependencies
+# Install system dependencies, clone repos, and clean up in a single layer
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    git \
-    curl \
-    git-lfs \
-    && rm -rf /var/lib/apt/lists/*
+        git \
+        curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -sSL https://install.python-poetry.org | python3 - \
+    && cd / \
+    && git clone https://github.com/GlastonburyGroup/CardiacDiffAE_GWAS.git /app/CardiacDiffAE_GWAS \
+    && git clone https://github.com/GlastonburyGroup/ImLatent.git /app/ImLatent
 
-# 2. Install Poetry
-RUN curl -sSL https://install.python-poetry.org | python3 -
+# Install Python dependencies for BOTH projects and clean up poetry's cache
+RUN cd /app/CardiacDiffAE_GWAS && poetry config virtualenvs.in-project true && poetry install --no-root \
+    && cd /app/ImLatent && poetry config virtualenvs.in-project true && poetry install \
+    && poetry cache clear . --all
 
-# 3. Clone your specific repositories into the image
+# Set final working directory and default command
 WORKDIR /app
-RUN git clone https://github.com/GlastonburyGroup/CardiacDiffAE_GWAS.git
-RUN git clone https://github.com/GlastonburyGroup/ImLatent.git
-
-# 4. Install environment for the FIRST repository
-WORKDIR /app/CardiacDiffAE_GWAS
-RUN poetry config virtualenvs.in-project true
-RUN poetry install --no-root
-
-# 5. Install environment for the SECOND repository
-WORKDIR /app/ImLatent
-RUN poetry config virtualenvs.in-project true
-RUN poetry install --no-root
-
-# 6. Final configuration
-WORKDIR /app
-ENV PYTHONPATH="${PYTHONPATH}:/app/CardiacDiffAE_GWAS:/app/ImLatent"
-
-# Set a default command to show that the container is ready
 CMD ["/bin/bash"]
