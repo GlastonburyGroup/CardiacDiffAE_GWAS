@@ -25,12 +25,12 @@ RUN git clone https://github.com/GlastonburyGroup/ImLatent.git
 # 4. Install environment for the FIRST repository
 WORKDIR /app/CardiacDiffAE_GWAS
 RUN poetry config virtualenvs.in-project true
-RUN poetry install
+RUN poetry install --no-root
 
 # 5. Install environment for the SECOND repository
 WORKDIR /app/ImLatent
 RUN poetry config virtualenvs.in-project true
-RUN poetry install
+RUN poetry install --no-root
 
 # 6. Final configuration
 WORKDIR /app
