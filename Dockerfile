@@ -26,10 +26,9 @@ authors = ["Dockerfile"]
 python = "^3.11"
 EOF
 
-# 4. Use a shell command (awk) to find, extract, and append the dependencies
-#    from each repository's pyproject.toml into our new combined file.
-RUN awk '/^\[tool\.poetry\.dependencies\]/{p=1;next} /^\[/{p=0} p' /tmp/CardiacDiffAE_GWAS/pyproject.toml >> pyproject.toml
-RUN awk '/^\[tool\.poetry\.dependencies\]/{p=1;next} /^\[/{p=0} p' /tmp/ImLatent/pyproject.toml >> pyproject.toml
+# 4. Use a shell command (awk) to find, extract, and append the dependencies...
+RUN awk '/^\[tool\.poetry\.dependencies\]/{p=1;next} /^\[/{p=0} p && !/python =/' /tmp/CardiacDiffAE_GWAS/pyproject.toml >> pyproject.toml
+RUN awk '/^\[tool\.poetry\.dependencies\]/{p=1;next} /^\[/{p=0} p && !/python =/' /tmp/ImLatent/pyproject.toml >> pyproject.toml
 
 # 5. Install all combined dependencies into a local .venv folder.
 #    Poetry will automatically resolve any duplicates or version conflicts.
