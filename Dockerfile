@@ -34,9 +34,6 @@ RUN poetry install
 
 # 6. Final configuration
 WORKDIR /app
-
-# Add the project directories to the PYTHONPATH
-# This allows for easier importing between scripts if needed.
 ENV PYTHONPATH="${PYTHONPATH}:/app/CardiacDiffAE_GWAS:/app/ImLatent"
 
 # Set a default command to show that the container is ready
