@@ -15,7 +15,8 @@ RUN git clone https://github.com/GlastonburyGroup/ImLatent.git
 
 # 3. Prepare the main app directory and create a template pyproject.toml
 WORKDIR /app
-RUN echo '[tool.poetry]
+RUN cat <<EOF > pyproject.toml
+[tool.poetry]
 name = "combined-env"
 version = "0.1.0"
 description = "Dynamically combined environment"
@@ -23,7 +24,7 @@ authors = ["Dockerfile"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-' > pyproject.toml
+EOF
 
 # 4. Use a shell command (awk) to find, extract, and append the dependencies
 #    from each repository's pyproject.toml into our new combined file.
