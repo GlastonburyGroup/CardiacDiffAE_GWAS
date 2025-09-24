@@ -1,25 +1,30 @@
-# This is a basic workflow to help you get started with Actions
+# .github/workflows/docker-publish.yml
+
 name: CI to Docker Hub
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push events but only for the "main" branch
   push:
     branches: [ "master" ]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build_and_push:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Check out the repo
         uses: actions/checkout@v4
 
-      # Logs into Docker Hub using the secrets we created
+      # ADD THIS NEW STEP BEFORE THE BUILD
+      - name: Free up disk space on the runner
+        run: |
+          echo "Initial disk space:"
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          echo "Disk space after cleanup:"
+          df -h
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -31,4 +36,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cardiac-diffae-latent-gwas:latest 
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/your-image-name:latest
