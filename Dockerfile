@@ -28,7 +28,7 @@ url = "https://download.pytorch.org/whl/cu118"
 priority = "explicit"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 EOF
 
 # 4. Extract all dependencies from both repos into a single temporary file.
