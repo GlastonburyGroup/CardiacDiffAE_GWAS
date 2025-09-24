@@ -1,6 +1,5 @@
 #-------------------------------------------------------------------
 # Stage 1: Dependency Builder
-# This stage's only job is to create a combined virtual environment.
 #-------------------------------------------------------------------
 FROM python:3.11-slim as builder
 
@@ -26,39 +25,42 @@ authors = ["Dockerfile"]
 python = "^3.11"
 EOF
 
-# 4. Use a shell command (awk) to find, extract, and append the dependencies...
-RUN awk '/^\[tool\.poetry\.dependencies\]/{p=1;next} /^\[/{p=0} p && !/python =/' /tmp/CardiacDiffAE_GWAS/pyproject.toml >> pyproject.toml
-RUN awk '/^\[tool\.poetry\.dependencies\]/{p=1;next} /^\[/{p=0} p && !/python =/' /tmp/ImLatent/pyproject.toml >> pyproject.toml
+# 4. Extract all dependencies from both repos into a single temporary file.
+#    This file WILL contain duplicates.
+RUN awk '/^\[tool\.poetry\.dependencies\]/{p=1;next} /^\[/{p=0} p && !/python =/' /tmp/CardiacDiffAE_GWAS/pyproject.toml > /tmp/combined_deps.txt
+RUN awk '/^\[tool\.poetry\.dependencies\]/{p=1;next} /^\[/{p=0} p && !/python =/' /tmp/ImLatent/pyproject.toml >> /tmp/combined_deps.txt
 
-# 5. Install all combined dependencies into a local .venv folder.
-#    Poetry will automatically resolve any duplicates or version conflicts.
+# 5. De-duplicate the combined list and append it to our pyproject.toml.
+#    The awk command below is key: it de-duplicates based on the package name (the key before the '='),
+#    ensuring each package is listed only once.
+RUN awk -F ' = ' '!seen[$1]++' /tmp/combined_deps.txt >> pyproject.toml
+
+# 6. Install all combined and de-duplicated dependencies.
 ENV POETRY_VIRTUALENVS_IN_PROJECT=true
 RUN poetry install --no-root
 
 
 #-------------------------------------------------------------------
 # Stage 2: Final Production Image
-# This stage builds the final, clean image.
 #-------------------------------------------------------------------
 FROM pytorch/pytorch:2.7.1-cuda11.8-cudnn9-runtime
 
-# 6. Copy the pre-built virtual environment from the 'builder' stage.
-#    This is the key step that brings in all the Python packages at once.
+# 7. Copy the pre-built virtual environment from the 'builder' stage.
 COPY --from=builder /app/.venv /.venv
 
-# 7. Set the PATH to use the packages from the virtual environment
+# 8. Set the PATH to use the packages from the virtual environment
 ENV PATH="/.venv/bin:$PATH"
 
-# 8. Install git for cloning the final app code
-RUN apt-get update && apt-get install -y --no-install-recommends git \
+# 9. Install git for cloning the final app code
+RUN apt-get update && apt-get install -y --no-install-recommends git git-lfs \
     && rm -rf /var/lib/apt/lists/*
 
-# 9. Clone the repositories into their final location in the image
+# 10. Clone the repositories into their final location in the image
 WORKDIR /app
 RUN git clone https://github.com/GlastonburyGroup/CardiacDiffAE_GWAS.git
 RUN git clone https://github.com/GlastonburyGroup/ImLatent.git
 
-# 10. Set the PYTHONPATH so the two projects can be imported by scripts
+# 11. Set the PYTHONPATH so the two projects can be imported by scripts
 ENV PYTHONPATH="/app/CardiacDiffAE_GWAS:/app/ImLatent"
 
 CMD ["/bin/bash"]
