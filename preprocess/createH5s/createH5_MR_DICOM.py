@@ -60,38 +60,47 @@ parser.add_argument("--fID", help="fieldID of the bulk files to process", defaul
 parser.add_argument("--fDirName", help="Name of the directory for the particular filed", default="")
 
 #Look for unsorted bulk files anyway in addition to the "non unsorted" files
-parser.add_argument("--add_unsorted", help="If supplied, then will additionally be processed unsorted directory of bulk files (freshly downloaded)", default="/group/glastonbury/soumick/dataset/UKBBDownloads/ukb673493_fourth_basket/bulkfiles")
+parser.add_argument("--add_unsorted", help="If supplied, then will additionally be processed unsorted directory of bulk files (freshly downloaded)", default="")
+
+parser.add_argument("--json_subs2ignore", help="Comma-seperated list of subIDs in a JSON file to ignore (e.g. processed already in the past)", default="")
 
 args = parser.parse_args()
 
 # read the zip files
 if args.dir_unsorted:
-    zip_files = glob(f"{args.in_path}/*_{args.fID}_*.zip")
+    zip_files = glob(f"{args.in_path}/**/*_{args.fID}_*.zip", recursive=True)
     print(f"Found {len(zip_files)} zip files")
 else:
-    zip_files = glob(f"{args.in_path}/*.zip")
+    zip_files = glob(f"{args.in_path}/**/*.zip", recursive=True)
     args.fDirName = os.path.basename(args.in_path)
     print(f"Found {len(zip_files)} zip files")
 
     if args.add_unsorted:
         if add_files := glob(
-            f"{args.add_unsorted}/*_{os.path.basename(args.in_path).split('_')[0].replace('F','')}_*.zip"
+            f"{args.add_unsorted}/**/*_{os.path.basename(args.in_path).split('_')[0].replace('F','')}_*.zip"
         ):
             print(f"Found {len(add_files)} additional zip files from unsorted directory")
             zip_files.extend(add_files)
 
 args.out_path = f"{args.out_path}/{args.fDirName}_H5"
 if args.dsV:
-    args.out_path = f"{args.out_path}{str(args.dsV).lower()}" if "v" in str(args.dsV).lower() else f"{args.out_path}v{args.dsV}"
+    args.out_path = f"{args.out_path}{args.dsV}" if "v" in str(args.dsV).lower() else f"{args.out_path}v{args.dsV}"
 os.makedirs(args.out_path, exist_ok=True)
 
 logging.basicConfig(filename=f"{args.out_path}/log.txt", level=logging.DEBUG)
 
-with open("/home/soumick.chatterjee/Codes/GitLab/tricorder/preprocess/createH5s/meta.yaml", 'r') as f:
+with open("preprocess/createH5s/meta.yaml", 'r') as f:
     meta = yaml.full_load(f)[args.fDirName.split("_")[0]] #only fetch the meta corresponding to the current dataset
     if 'multi_primary' in meta and meta['multi_primary'] and "primary_data_tags" not in meta['desctags']:
         logging.error("Error: multi_primary is set to True but primary_data_tags is not defined in meta.yaml")
         sys.exit(1)
+
+if bool(args.json_subs2ignore):
+    with open(args.json_subs2ignore, 'r') as f:
+        subs2ignore = json.load(f)
+    print(f"Found {len(subs2ignore)} subjects to ignore")
+else:
+    subs2ignore = []
 
 with h5py.File(f"{args.out_path}/data.h5", "w") as h5_file: # create the HDF5 file
     # loop over the zip files
@@ -106,6 +115,10 @@ with h5py.File(f"{args.out_path}/data.h5", "w") as h5_file: # create the HDF5 fi
                     fileID = os.path.basename(zip_file).replace(".zip","")
                     patientID, fieldID, instanceID, unknownID = fileID.split("_")
                     instanceID = f"{instanceID}_{unknownID}" #as we don't know what is the meaning of that unknownID, we will just add it to the instanceID
+
+                    if patientID in subs2ignore:
+                        continue
+
                     dgroup = h5_file.create_group(f"{patientID}/{fieldID}/{instanceID}")
 
                     # read manifest.cvs file from inside the zip
