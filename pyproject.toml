@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["soumick.chatterjee <soumick.chatterjee@fht.org>"]
 readme = "README.md"
-packages = [{include = "cardiacdiffae_gwas"}]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
