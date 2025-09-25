@@ -17,29 +17,31 @@ RUN git clone https://github.com/GlastonburyGroup/CardiacDiffAE_GWAS.git
 RUN poetry init
 RUN poetry source add --priority=explicit pytorch https://download.pytorch.org/whl/cu118
 
-RUN cat /app/ImLatent/pyproject.toml | python3 -c "
-        import toml, sys
-        data = toml.load(sys.stdin)
-        deps = data['tool']['poetry']['dependencies']
-        for name, version in deps.items():
-            if name != 'python':
-                if isinstance(version, dict) and 'source' in version:
-                    print(f'{name}@{version[\"version\"]} --source {version[\"source\"]}')
-                else:
-                    print(f'{name}@{version}')
-        " | xargs -I {} poetry add {}
+RUN python3 << 'EOF' | xargs -I {} poetry add {}
+    import toml
+    with open('/app/ImLatent/pyproject.toml', 'r') as f:
+        data = toml.load(f)
+    deps = data['tool']['poetry']['dependencies']
+    for name, version in deps.items():
+        if name != 'python':
+            if isinstance(version, dict) and 'source' in version:
+                print(f'{name}@{version["version"]} --source {version["source"]}')
+            else:
+                print(f'{name}@{version}')
+    EOF
 
-RUN cat /app/CardiacDiffAE_GWAS/pyproject.toml | python3 -c "
-        import toml, sys
-        data = toml.load(sys.stdin)
-        deps = data['tool']['poetry']['dependencies']
-        for name, version in deps.items():
-            if name != 'python':
-                if isinstance(version, dict) and 'source' in version:
-                    print(f'{name}@{version[\"version\"]} --source {version[\"source\"]}')
-                else:
-                    print(f'{name}@{version}')
-        " | xargs -I {} poetry add {}
+RUN python3 << 'EOF' | xargs -I {} poetry add {}
+    import toml
+    with open('/app/CardiacDiffAE_GWAS/pyproject.toml', 'r') as f:
+        data = toml.load(f)
+    deps = data['tool']['poetry']['dependencies']
+    for name, version in deps.items():
+        if name != 'python':
+            if isinstance(version, dict) and 'source' in version:
+                print(f'{name}@{version["version"]} --source {version["source"]}')
+            else:
+                print(f'{name}@{version}')
+    EOF
 
 RUN poetry install
 
