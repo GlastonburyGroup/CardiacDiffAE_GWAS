@@ -26,6 +26,7 @@ nltk = "^3.9.1"
 ipykernel = "^6.30.0"
 autoreload = "^0.1.2"
 ipywidgets = "^8.1.7"
+dxpy = "^0.398.0"
 
 
 [build-system]
