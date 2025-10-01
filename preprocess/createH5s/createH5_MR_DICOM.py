@@ -64,6 +64,8 @@ parser.add_argument("--add_unsorted", help="If supplied, then will additionally 
 
 parser.add_argument("--json_subs2ignore", help="Comma-seperated list of subIDs in a JSON file to ignore (e.g. processed already in the past)", default="")
 
+parser.add_argument("--copy_zip_locally", action=argparse.BooleanOptionalAction, help="whether to copy zip files locally (in temp) before unzipping them", default=True)
+
 args = parser.parse_args()
 
 # read the zip files
@@ -107,7 +109,7 @@ available_subjects = [os.path.basename(f).split("_")[0] for f in zip_files]
 print(f"Found {len(set(available_subjects))} unique subjects in the zip files")
 if len(subs2ignore) > 0:
     print(f"After ignoring the subjects in the ignore list, {len(set(available_subjects) - set(subs2ignore))} unique subjects will be processed")
-    
+
 with h5py.File(f"{args.out_path}/data.h5", "w") as h5_file: # create the HDF5 file
     # loop over the zip files
     for zip_file in tqdm(zip_files):
@@ -121,10 +123,13 @@ with h5py.File(f"{args.out_path}/data.h5", "w") as h5_file: # create the HDF5 fi
                 continue
 
             with tempfile.TemporaryDirectory(prefix="createH5_MRI_") as tmp_dir:
-                local_zip_path = os.path.join(tmp_dir, os.path.basename(zip_file))
-                shutil.copy(zip_file, local_zip_path)
 
-                with ZipFile(local_zip_path, "r") as zip_ref:
+                if args.copy_zip_locally:
+                    local_zip_path = os.path.join(tmp_dir, os.path.basename(zip_file))
+                    shutil.copy(zip_file, local_zip_path)
+                    zip_file = local_zip_path
+
+                with ZipFile(zip_file, "r") as zip_ref:
                     # extract the zip file into Temporary Directory
                     zip_ref.extractall(tmp_dir)
 
@@ -250,6 +255,8 @@ with h5py.File(f"{args.out_path}/data.h5", "w") as h5_file: # create the HDF5 fi
                         dset.attrs["DICOMHeader"] = json.dumps(series_dataset[dsName]["DICOMHeader"])
                         dset.attrs["seriesDesc"] = series_dataset[dsName]["seriesDesc"]
 
+                if args.copy_zip_locally:
+                    os.remove(zip_file) 
 
         except Exception as ex:
             logging.error(f"Error: {ex} in {zip_file} at line {sys.exc_info()[-1].tb_lineno}")
