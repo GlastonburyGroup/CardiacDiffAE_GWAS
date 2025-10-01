@@ -103,6 +103,11 @@ if bool(args.json_subs2ignore):
 else:
     subs2ignore = []
 
+available_subjects = [os.path.basename(f).split("_")[0] for f in zip_files]
+print(f"Found {len(set(available_subjects))} unique subjects in the zip files")
+if len(subs2ignore) > 0:
+    print(f"After ignoring the subjects in the ignore list, {len(set(available_subjects) - set(subs2ignore))} unique subjects will be processed")
+    
 with h5py.File(f"{args.out_path}/data.h5", "w") as h5_file: # create the HDF5 file
     # loop over the zip files
     for zip_file in tqdm(zip_files):
