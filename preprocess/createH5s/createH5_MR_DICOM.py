@@ -255,9 +255,6 @@ with h5py.File(f"{args.out_path}/data.h5", "w") as h5_file: # create the HDF5 fi
                         dset.attrs["DICOMHeader"] = json.dumps(series_dataset[dsName]["DICOMHeader"])
                         dset.attrs["seriesDesc"] = series_dataset[dsName]["seriesDesc"]
 
-                if args.copy_zip_locally:
-                    os.remove(zip_file) 
-
         except Exception as ex:
             logging.error(f"Error: {ex} in {zip_file} at line {sys.exc_info()[-1].tb_lineno}")
             with contextlib.suppress(Exception): #if the fileds like patientID, fieldID, or instanceID are not even tehre, then the exception can safely ignored. If they are thre, the group might already be created - needs to be deleted
