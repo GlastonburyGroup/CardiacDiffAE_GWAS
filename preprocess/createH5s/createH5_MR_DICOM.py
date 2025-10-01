@@ -3,7 +3,7 @@ This script creates the HDF5 files from the zip files downloaded from UK Biobank
 This is a generic version, was used for the creation of the HDF5 files for the short and long axis heart images.
 """
 
-
+import shutil
 from glob import glob
 from zipfile import ZipFile
 import h5py
@@ -69,11 +69,11 @@ args = parser.parse_args()
 # read the zip files
 if args.dir_unsorted:
     zip_files = glob(f"{args.in_path}/**/*_{args.fID}_*.zip", recursive=True)
-    print(f"Found {len(zip_files)} zip files")
+    print(f"Found {len(zip_files)} zip files from unsorted directory")
 else:
     zip_files = glob(f"{args.in_path}/**/*.zip", recursive=True)
     args.fDirName = os.path.basename(args.in_path)
-    print(f"Found {len(zip_files)} zip files")
+    print(f"Found {len(zip_files)} zip files from field-specific directory")
 
     if args.add_unsorted:
         if add_files := glob(
@@ -96,6 +96,7 @@ with open("preprocess/createH5s/meta.yaml", 'r') as f:
         sys.exit(1)
 
 if bool(args.json_subs2ignore):
+    print(f"Reading the list of subjects to ignore from {args.json_subs2ignore}")
     with open(args.json_subs2ignore, 'r') as f:
         subs2ignore = json.load(f)
     print(f"Found {len(subs2ignore)} subjects to ignore")
@@ -106,18 +107,21 @@ with h5py.File(f"{args.out_path}/data.h5", "w") as h5_file: # create the HDF5 fi
     # loop over the zip files
     for zip_file in tqdm(zip_files):
         try:
-            # read the zip file
-            with ZipFile(zip_file, "r") as zip_ref:
-                # extract the zip file into Temporary Directory
-                with tempfile.TemporaryDirectory(prefix="createH5_MRI_") as tmp_dir:
+
+            fileID = os.path.basename(zip_file).replace(".zip","")
+            patientID, fieldID, instanceID, unknownID = fileID.split("_")
+            instanceID = f"{instanceID}_{unknownID}" #as we don't know what is the meaning of that unknownID, we will just add it to the instanceID
+
+            if patientID in subs2ignore:
+                continue
+
+            with tempfile.TemporaryDirectory(prefix="createH5_MRI_") as tmp_dir:
+                local_zip_path = os.path.join(tmp_dir, os.path.basename(zip_file))
+                shutil.copy(zip_file, local_zip_path)
+
+                with ZipFile(local_zip_path, "r") as zip_ref:
+                    # extract the zip file into Temporary Directory
                     zip_ref.extractall(tmp_dir)
-
-                    fileID = os.path.basename(zip_file).replace(".zip","")
-                    patientID, fieldID, instanceID, unknownID = fileID.split("_")
-                    instanceID = f"{instanceID}_{unknownID}" #as we don't know what is the meaning of that unknownID, we will just add it to the instanceID
-
-                    if patientID in subs2ignore:
-                        continue
 
                     dgroup = h5_file.create_group(f"{patientID}/{fieldID}/{instanceID}")
 

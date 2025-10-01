@@ -14,11 +14,29 @@ WORKDIR /app
 RUN git clone https://github.com/GlastonburyGroup/ImLatent.git
 RUN git clone https://github.com/GlastonburyGroup/CardiacDiffAE_GWAS.git
 
-RUN cp /app/ImLatent/pyproject.toml ./
+RUN pip install toml
+
+RUN cp ImLatent/pyproject.toml ./pyproject.toml
+RUN cp CardiacDiffAE_GWAS/pyproject.toml ./pyproject.add.toml
+
+RUN echo "import toml\n\
+f_base = 'pyproject.toml'\n\
+f_add = 'pyproject.add.toml'\n\
+with open(f_base, 'r') as f:\n\
+    base_data = toml.load(f)\n\
+with open(f_add, 'r') as f:\n\
+    add_data = toml.load(f)\n\
+base_data['tool']['poetry']['dependencies'].update(add_data['tool']['poetry']['dependencies'])\n\
+with open(f_base, 'w') as f:\n\
+    toml.dump(base_data, f)" > merge_deps.py
+
+# 4. Execute the newly created script.
+RUN python3 merge_deps.py
+
+# 5. Install dependencies from the now-merged pyproject.toml.
 RUN poetry install --no-root
 
-RUN cat /app/CardiacDiffAE_GWAS/pyproject.toml | python3 -c 'import toml, sys; data = toml.load(sys.stdin); deps = data["tool"]["poetry"]["dependencies"]; [print(f"{name}@{version[\"version\"]} --source {version[\"source\"]}") if isinstance(version, dict) and "source" in version else print(f"{name}@{version}") for name, version in deps.items() if name != "python"]' | xargs -I {} poetry add {}
-RUN poetry install --no-root
+RUN rm merge_deps.py pyproject.add.toml
 
 # 11. Set the PYTHONPATH so the two projects can be imported by scripts
 ENV PYTHONPATH="/app/CardiacDiffAE_GWAS:/app/ImLatent"
