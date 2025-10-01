@@ -64,7 +64,7 @@ parser.add_argument("--add_unsorted", help="If supplied, then will additionally 
 
 parser.add_argument("--json_subs2ignore", help="Comma-seperated list of subIDs in a JSON file to ignore (e.g. processed already in the past)", default="")
 
-parser.add_argument("--copy_zip_locally", action=argparse.BooleanOptionalAction, help="whether to copy zip files locally (in temp) before unzipping them", default=True)
+parser.add_argument("--copy_zip_locally", action=argparse.BooleanOptionalAction, help="whether to copy zip files locally (in temp) before unzipping them (might be required on the cloud when FUSE might not work well when we are streaming directly)", default=False)
 
 args = parser.parse_args()
 
