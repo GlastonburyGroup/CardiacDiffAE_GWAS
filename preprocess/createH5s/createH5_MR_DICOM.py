@@ -141,11 +141,17 @@ with h5py.File(f"{args.out_path}/data.h5", "w") as h5_file: # create the HDF5 fi
 
                     dgroup.attrs["patientDICOMID"] = readSingleValMeta(df, "patientid") if "patientid" in df.columns else ""
                     dgroup.attrs["studyDICOMID"] = readSingleValMeta(df, "studyid") if "studyid" in df.columns else ""
-                    dgroup.attrs["studyDesc"] = readSingleValMeta(df, "study discription") if "study discription" in df.columns else ""
                     dgroup.attrs["aet"] = readSingleValMeta(df, "aet") if "aet" in df.columns else ""
                     dgroup.attrs["host"] = readSingleValMeta(df, "host") if "host" in df.columns else ""
                     dgroup.attrs["date"] = readSingleValMeta(df, "date") if "date" in df.columns else ""
                     dgroup.attrs["n_series"] = n_series
+
+                    if "study description" in df.columns:
+                        dgroup.attrs["studyDesc"] = readSingleValMeta(df, "study description")
+                    elif "study discription" in df.columns: 
+                        dgroup.attrs["studyDesc"] = readSingleValMeta(df, "study discription")
+                    else:
+                        dgroup.attrs["studyDesc"] = ""
 
                     seriesIDs = sorted(df.seriesid.unique())
                     cmplx_dataM = []
@@ -161,9 +167,10 @@ with h5py.File(f"{args.out_path}/data.h5", "w") as h5_file: # create the HDF5 fi
                             if len(series) == 0:                            
                                 logging.error(f"Dirty DICOM: In {zip_file}, for seriesID: {seriesID} (the {i+1}th series out of {n_series} series), has an issue with the DICOM files. It will be skipped.")
                                 continue
-                            seriesDesc = df[df.seriesid==seriesID]['series discription'].unique()
+                            seriesDF = df[df.seriesid==seriesID]
+                            seriesDesc = seriesDF['series description'].unique() if 'series description' in seriesDF.columns else seriesDF['series discription'].unique()
                             if len(seriesDesc) > 1:
-                                logging.warning(f"Warning: More than one series discription found in {zip_file}, for seriesID: {seriesID}")
+                                logging.warning(f"Warning: More than one series description found in {zip_file}, for seriesID: {seriesID}")
                             seriesDesc = seriesDesc[0]                        
 
                             n_dims = 2 + sum([meta['multi_channel'], meta['is_dynamic'], meta['is_3D']]) #2 spatial dims + dims as per the data
@@ -250,7 +257,7 @@ with h5py.File(f"{args.out_path}/data.h5", "w") as h5_file: # create the HDF5 fi
                             
                         except Exception as ex:
                             logging.error(f"Error: {ex} in {zip_file}, for seriesID: {seriesID} (the {i+1}th series out of {n_series} series) at line {sys.exc_info()[-1].tb_lineno}")
-                            logging.error(f"Dataframe for this seriesID:\n{df[df.seriesid==seriesID]}")
+                            
 
                     for dsName in series_dataset.keys():
                         dset = dgroup.create_dataset(dsName, data=series_dataset[dsName]['data'])
