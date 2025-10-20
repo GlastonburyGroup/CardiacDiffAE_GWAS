@@ -154,98 +154,103 @@ with h5py.File(f"{args.out_path}/data.h5", "w") as h5_file: # create the HDF5 fi
                     desc_tags = []
                     series_dataset = collections.defaultdict(dict)
                     for i, seriesID in enumerate(seriesIDs):
-                        # if len(seriesIDs) <= 6: #TODO: remove this debug
-                        #     continue
-                        series, seriesMeta = ReadSeries(tmp_dir, return_meta=True, taginits2ignore=["0029"], series_ids=seriesID, series2array=False)
-                        if len(series) == 0:                            
-                            logging.error(f"Dirty DICOM: In {zip_file}, for seriesID: {seriesID} (the {i+1}th series out of {n_series} series), has an issue with the DICOM files. It will be skipped.")
-                            continue
-                        seriesDesc = df[df.seriesid==seriesID]['series discription'].unique()
-                        if len(seriesDesc) > 1:
-                            logging.warning(f"Warning: More than one series discription found in {zip_file}, for seriesID: {seriesID}")
-                        seriesDesc = seriesDesc[0]                        
+                        try:
+                            # if len(seriesIDs) <= 6: #TODO: remove this debug
+                            #     continue
+                            series, seriesMeta = ReadSeries(tmp_dir, return_meta=True, taginits2ignore=["0029"], series_ids=seriesID, series2array=False)
+                            if len(series) == 0:                            
+                                logging.error(f"Dirty DICOM: In {zip_file}, for seriesID: {seriesID} (the {i+1}th series out of {n_series} series), has an issue with the DICOM files. It will be skipped.")
+                                continue
+                            seriesDesc = df[df.seriesid==seriesID]['series discription'].unique()
+                            if len(seriesDesc) > 1:
+                                logging.warning(f"Warning: More than one series discription found in {zip_file}, for seriesID: {seriesID}")
+                            seriesDesc = seriesDesc[0]                        
 
-                        n_dims = 2 + sum([meta['multi_channel'], meta['is_dynamic'], meta['is_3D']]) #2 spatial dims + dims as per the data
-                        assert n_dims == len(series[0].shape), f"Error: While processsing {fileID}, the number of dimensions in the data ({len(series[0].shape)}) does not match the number of dimensions determined from the meta.yaml ({n_dims})"
-                        if not meta['is_3D']:
-                            series[0] = np.expand_dims(series[0], -3)
-                        if not meta['is_dynamic']:
-                            series[0] = np.expand_dims(series[0], -4)
-                        if not meta['multi_channel']:
-                            series[0] = np.expand_dims(series[0], -5)
-                         
-                        if any(seriesDesc in (sublist if isinstance(sublist, list) else [sublist]) for sublist in meta['desctags']['primary_data']):
-                            dsName = "primary" #if len(meta['desctags']['primary_data']) == 1 else "primary_" + meta['desctags']['primary_data_tags'][meta['desctags']['primary_data'].index(seriesDesc)]
-                        elif any(seriesDesc in sublist for sublist in meta['desctags']['auxiliary_data']):
-                            dsName = "auxiliary_" + meta['desctags']['auxiliary_data_tags'][next((i for i, sublist in enumerate(meta['desctags']['auxiliary_data']) if seriesDesc in sublist), None)]
-                        else:
-                            logging.error(f"Error: While processsing {fileID}, {seriesDesc} was not found in meta.yaml")
-                            continue
-
-                        if 'multi_primary' in meta and meta['multi_primary'] and "primary" in dsName:
-                            dsName += "_" + meta['desctags']['primary_data_tags'][next((i for i, sublist in enumerate((x if isinstance(x, list) else [x]) for x in meta['desctags']['primary_data']) if seriesDesc in sublist), None)]
-
-                        plane = determine_orientation(seriesMeta[0]['0020|0037'])
-                        if 'default_plane' not in meta or plane != meta['default_plane']:
-                            dsName += f"_{plane}"
-
-                        if meta['repeat_acq']:
-                            dsName += "_0" #It assumes it to be the first one, then if that is taken, it will be _1, _2, etc - which will be calculated!
-
-                        if meta["is_complex"] and "primary" in dsName: #Currently complex is only supported for primary data
-
-                            if "ORIGINAL\\PRIMARY\\M" in seriesMeta[0]['0008|0008']:  
-                                cmplx_dataM.append({
-                                    "M": series[0],
-                                    "M_seriesID": seriesID,
-                                    "M_seriesMeta": seriesMeta[0]
-                                })
-                                complx_flags["M"] = True
-                            elif "ORIGINAL\\PRIMARY\\P" in seriesMeta[0]['0008|0008']:                              
-                                cmplx_dataF.append({
-                                    "P": series[0],
-                                    "P_seriesID": seriesID,
-                                    "P_seriesMeta": seriesMeta[0]
-                                })
-                                complx_flags["P"] = True
+                            n_dims = 2 + sum([meta['multi_channel'], meta['is_dynamic'], meta['is_3D']]) #2 spatial dims + dims as per the data
+                            assert n_dims == len(series[0].shape), f"Error: While processsing {fileID}, the number of dimensions in the data ({len(series[0].shape)}) does not match the number of dimensions determined from the meta.yaml ({n_dims})"
+                            if not meta['is_3D']:
+                                series[0] = np.expand_dims(series[0], -3)
+                            if not meta['is_dynamic']:
+                                series[0] = np.expand_dims(series[0], -4)
+                            if not meta['multi_channel']:
+                                series[0] = np.expand_dims(series[0], -5)
+                            
+                            if any(seriesDesc in (sublist if isinstance(sublist, list) else [sublist]) for sublist in meta['desctags']['primary_data']):
+                                dsName = "primary" #if len(meta['desctags']['primary_data']) == 1 else "primary_" + meta['desctags']['primary_data_tags'][meta['desctags']['primary_data'].index(seriesDesc)]
+                            elif any(seriesDesc in sublist for sublist in meta['desctags']['auxiliary_data']):
+                                dsName = "auxiliary_" + meta['desctags']['auxiliary_data_tags'][next((i for i, sublist in enumerate(meta['desctags']['auxiliary_data']) if seriesDesc in sublist), None)]
                             else:
-                                logging.error(f"Error: While processsing {fileID}, DICOM header 0008|0008 did not return ORIGINAL\\PRIMARY\\M or ORIGINAL\\PRIMARY\\P. Check the issue!")
+                                logging.error(f"Error: While processsing {fileID}, {seriesDesc} was not found in meta.yaml")
                                 continue
 
-                            if "M" in complx_flags and "P" in complx_flags:  
-                                cmplx_datum = {**cmplx_dataM.pop(0), **cmplx_dataF.pop(0)}
-                                assert cmplx_datum['M_seriesMeta']['0020|0012'] == cmplx_datum['P_seriesMeta']['0020|0012'], "Error: While processsing {fileID}, the acquisition number of the magnitude and phase data are not the same. Check the issue!"
-                                cmplx_datum["P"] = np.interp(cmplx_datum["P"], (cmplx_datum["P"].min(), cmplx_datum["P"].max()), (-np.pi, +np.pi))
-                                data = cmplx_datum["M"] * np.exp(1j * cmplx_datum["P"])
-                                seriesID = {"mag_0": cmplx_datum["M_seriesID"], "phase_0": cmplx_datum["P_seriesID"]}
-                                seriesMeta[0] = {"mag_0": cmplx_datum["M_seriesMeta"], "phase_0": cmplx_datum["P_seriesMeta"]}
-                                complx_flags = {}
-                            else:
-                                data = None
-                        else:
-                            data = series[0]
-                            seriesID = {"mag_0": seriesID} #by default, if it's not complex data, it's magnitude only
-                            seriesMeta[0] = {"mag_0": seriesMeta[0]}
+                            if 'multi_primary' in meta and meta['multi_primary'] and "primary" in dsName:
+                                dsName += "_" + meta['desctags']['primary_data_tags'][next((i for i, sublist in enumerate((x if isinstance(x, list) else [x]) for x in meta['desctags']['primary_data']) if seriesDesc in sublist), None)]
 
-                        if data is not None:                            
-                            if meta["repeat_acq"] and dsName in series_dataset.keys() and seriesDesc in desc_tags:
-                                dsName = dsName.replace("_0", f'_{sorted([int(k.split("_")[-1]) for k in series_dataset.keys() if dsName.replace("_0", "_") in k])[-1]+1}')
-                            if dsName in series_dataset.keys():
-                                if "stack_dim" in meta and data.shape[meta["stack_dim"]] == 1:
-                                    series_dataset[dsName]['data'] = np.concatenate((series_dataset[dsName]['data'], data), axis=meta["stack_dim"])
-                                    id_in_series = series_dataset[dsName]['data'].shape[meta["stack_dim"]] - 1
+                            plane = determine_orientation(seriesMeta[0]['0020|0037'])
+                            if 'default_plane' not in meta or plane != meta['default_plane']:
+                                dsName += f"_{plane}"
+
+                            if meta['repeat_acq']:
+                                dsName += "_0" #It assumes it to be the first one, then if that is taken, it will be _1, _2, etc - which will be calculated!
+
+                            if meta["is_complex"] and "primary" in dsName: #Currently complex is only supported for primary data
+
+                                if "ORIGINAL\\PRIMARY\\M" in seriesMeta[0]['0008|0008']:  
+                                    cmplx_dataM.append({
+                                        "M": series[0],
+                                        "M_seriesID": seriesID,
+                                        "M_seriesMeta": seriesMeta[0]
+                                    })
+                                    complx_flags["M"] = True
+                                elif "ORIGINAL\\PRIMARY\\P" in seriesMeta[0]['0008|0008']:                              
+                                    cmplx_dataF.append({
+                                        "P": series[0],
+                                        "P_seriesID": seriesID,
+                                        "P_seriesMeta": seriesMeta[0]
+                                    })
+                                    complx_flags["P"] = True
                                 else:
-                                    logging.error(f"Error: While processsing {fileID}, Concatenation error! Currently, one concatenation per series is supported and stack_dim must be supplied.")
+                                    logging.error(f"Error: While processsing {fileID}, DICOM header 0008|0008 did not return ORIGINAL\\PRIMARY\\M or ORIGINAL\\PRIMARY\\P. Check the issue!")
                                     continue
-                                new_keys = {"mag_0": f"mag_{id_in_series}", "phase_0": f"phase_{id_in_series}"}
-                                series_dataset[dsName]["seriesID"].update({new_keys.get(k, k): v for k, v in seriesID.items()})
-                                series_dataset[dsName]["DICOMHeader"].update({new_keys.get(k, k): v for k, v in seriesMeta[0].items()})
+
+                                if "M" in complx_flags and "P" in complx_flags:  
+                                    cmplx_datum = {**cmplx_dataM.pop(0), **cmplx_dataF.pop(0)}
+                                    assert cmplx_datum['M_seriesMeta']['0020|0012'] == cmplx_datum['P_seriesMeta']['0020|0012'], "Error: While processsing {fileID}, the acquisition number of the magnitude and phase data are not the same. Check the issue!"
+                                    cmplx_datum["P"] = np.interp(cmplx_datum["P"], (cmplx_datum["P"].min(), cmplx_datum["P"].max()), (-np.pi, +np.pi))
+                                    data = cmplx_datum["M"] * np.exp(1j * cmplx_datum["P"])
+                                    seriesID = {"mag_0": cmplx_datum["M_seriesID"], "phase_0": cmplx_datum["P_seriesID"]}
+                                    seriesMeta[0] = {"mag_0": cmplx_datum["M_seriesMeta"], "phase_0": cmplx_datum["P_seriesMeta"]}
+                                    complx_flags = {}
+                                else:
+                                    data = None
                             else:
-                                series_dataset[dsName]['data'] = data
-                                series_dataset[dsName]["seriesID"] = seriesID
-                                series_dataset[dsName]["DICOMHeader"] = seriesMeta[0]
-                            series_dataset[dsName]["seriesDesc"] = seriesDesc
-                            desc_tags.append(seriesDesc)
+                                data = series[0]
+                                seriesID = {"mag_0": seriesID} #by default, if it's not complex data, it's magnitude only
+                                seriesMeta[0] = {"mag_0": seriesMeta[0]}
+
+                            if data is not None:                            
+                                if meta["repeat_acq"] and dsName in series_dataset.keys() and seriesDesc in desc_tags:
+                                    dsName = dsName.replace("_0", f'_{sorted([int(k.split("_")[-1]) for k in series_dataset.keys() if dsName.replace("_0", "_") in k])[-1]+1}')
+                                if dsName in series_dataset.keys():
+                                    if "stack_dim" in meta and data.shape[meta["stack_dim"]] == 1:
+                                        series_dataset[dsName]['data'] = np.concatenate((series_dataset[dsName]['data'], data), axis=meta["stack_dim"])
+                                        id_in_series = series_dataset[dsName]['data'].shape[meta["stack_dim"]] - 1
+                                    else:
+                                        logging.error(f"Error: While processsing {fileID}, Concatenation error! Currently, one concatenation per series is supported and stack_dim must be supplied.")
+                                        continue
+                                    new_keys = {"mag_0": f"mag_{id_in_series}", "phase_0": f"phase_{id_in_series}"}
+                                    series_dataset[dsName]["seriesID"].update({new_keys.get(k, k): v for k, v in seriesID.items()})
+                                    series_dataset[dsName]["DICOMHeader"].update({new_keys.get(k, k): v for k, v in seriesMeta[0].items()})
+                                else:
+                                    series_dataset[dsName]['data'] = data
+                                    series_dataset[dsName]["seriesID"] = seriesID
+                                    series_dataset[dsName]["DICOMHeader"] = seriesMeta[0]
+                                series_dataset[dsName]["seriesDesc"] = seriesDesc
+                                desc_tags.append(seriesDesc)
+                            
+                        except Exception as ex:
+                            logging.error(f"Error: {ex} in {zip_file}, for seriesID: {seriesID} (the {i+1}th series out of {n_series} series) at line {sys.exc_info()[-1].tb_lineno}")
+                            logging.error(f"Dataframe for this seriesID:\n{df[df.seriesid==seriesID]}")
 
                     for dsName in series_dataset.keys():
                         dset = dgroup.create_dataset(dsName, data=series_dataset[dsName]['data'])
