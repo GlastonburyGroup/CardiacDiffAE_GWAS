@@ -15,8 +15,11 @@ def pre_pad(vol, newshape):
     pad = np.array([[0,0]]*(len(vol.shape)-2) +  [[pad[0], pad[0]], [pad[1], pad[1]]])
     return np.pad(vol, pad, mode='constant')
 
-def contour_crop(vol, contour, exact=True, newshape=None):
+def contour_crop(vol, contour, exact=True, newshape=None, only_ROI=False):
     idx = np.nonzero(contour)
+
+    if only_ROI:
+        vol *= (contour > 0) 
 
     if exact:
         return vol[..., idx[-2].min():idx[-2].max(), idx[-1].min():idx[-1].max()]
@@ -47,9 +50,11 @@ def contour_crop(vol, contour, exact=True, newshape=None):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--in_path", help="path to store the HDF5 file", default=r"../ukbbH5s/_tmp_newV3/F20208_Long_axis_heart_images_DICOM_H5")
+parser.add_argument("--mask_file", help="name of the mask file located inside <in_path> (default: meta_mask.h5)", default="meta_mask.h5")
 parser.add_argument("--acq_filter", help="any particular acquisition to consider", default="LAX_4Ch_transverse")
 parser.add_argument("--mode", type=int, help="0: fetch all the subject IDs, 1: create subset of the dataset and return the subject IDs based on the number of cardiac cycles (for heart 208 and 209)", default=0)
 parser.add_argument("--exact_mask_crop", action=argparse.BooleanOptionalAction, help="If True, they will be cropped with exact shape of the mask (ignoring shapeX and shapeY)", default=False)
+parser.add_argument("--only_ROI", action=argparse.BooleanOptionalAction, help="If True, then only the ROI will be kept. If False, a contour around the ROI will be created and everything side that box will be kept.", default=False)
 parser.add_argument("--shapeX", type=int, help="Desired shape X", default=128)
 parser.add_argument("--shapeY", type=int, help="Desired shape Y", default=128)
 args = parser.parse_args()
@@ -63,26 +68,28 @@ if args.exact_mask_crop:
     out_path += "_fitcropped"
 else:
     out_path += f"_cropped_{args.shapeX}_{args.shapeY}"
+if args.only_ROI:
+    out_path += "_onlyROI"
 
 os.makedirs(out_path, exist_ok=True)
-cropped_file = h5py.File(f"{out_path}/data.h5", 'w')
+cropped_file = h5py.File(out_path if out_path.endswith('.h5') else f"{out_path}/data.h5", 'w')
 
-mask_file = h5py.File(f"{args.in_path}/meta_mask.h5", 'r')
+mask_file = h5py.File(f"{args.in_path}/{args.mask_file}", 'r')
 
-def crop_with_heartmask(name, obj):
+def crop_with_mask(name, obj):
     if bool(args.acq_filter) and args.acq_filter not in name:
         return
 
     if isinstance(obj, h5py.Dataset):
         try:
-            _crop_with_heartmask_single(name, obj)
+            _crop_with_mask_single(name, obj)
         except Exception as e:
             print(f"Error for {name}: {e}")
 
-def _crop_with_heartmask_single(name, obj):
+def _crop_with_mask_single(name, obj):
     contour = mask_file[name][:]
 
-    cropped = contour_crop(obj, contour, exact=args.exact_mask_crop, newshape=(args.shapeX, args.shapeY))
+    cropped = contour_crop(obj, contour, exact=args.exact_mask_crop, newshape=(args.shapeX, args.shapeY), only_ROI=args.only_ROI)
 
     if not args.exact_mask_crop:
         assert cropped.shape[-2] == args.shapeX and cropped.shape[-1] == args.shapeY, f"Shape mismatch: {cropped.shape} vs {args.shapeX}x{args.shapeY}, for {name} with original shape {obj.shape}"
@@ -99,9 +106,9 @@ def _crop_with_heartmask_single(name, obj):
     dset.attrs["min_val"] = cropped.min()
     dset.attrs["max_val"] = cropped.max()
 
-with h5py.File(f"{args.in_path}/data.h5", 'r') as f:    
+with h5py.File(args.in_path if args.in_path.endswith('.h5') else f"{args.in_path}/data.h5", 'r') as f:    
     if args.mode == 0: 
-        f.visititems(crop_with_heartmask)
+        f.visititems(crop_with_mask)
 
 
 print("Done!")

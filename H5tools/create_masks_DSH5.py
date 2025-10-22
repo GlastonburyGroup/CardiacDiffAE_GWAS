@@ -30,14 +30,14 @@ from skimage import filters
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--in_path", help="path to store the HDF5 file", default=r"../datasets/ukbbH5s/_tmp_newV3/F20208_Long_axis_heart_images_DICOM_H5")
+parser.add_argument("--out_file", help="output file name (default: meta_mask.h5), to be storred inside the <in_path>", default="meta_mask.h5")
 parser.add_argument("--mode", type=int, help="0: Create heart masks (20208)", default=0)
 args = parser.parse_args()
 
-mask_file = h5py.File(f"{args.in_path}/meta_mask.h5", 'w')
+mask_file = h5py.File(f"{args.in_path}/{args.out_file}", 'w')
 
 def create_masks(name, obj, mode):
     if isinstance(obj, h5py.Dataset) and not name.startswith('meta_mask'):
-        print(name)
         
         match mode:
             case 0: #heart mask
@@ -79,7 +79,7 @@ def create_masks(name, obj, mode):
         dset.attrs["max_val"] = 1
         dset.attrs["seriesID"] = obj.attrs['seriesID']
 
-with h5py.File(f"{args.in_path}/data.h5", 'r') as f:    
+with h5py.File(args.in_path if args.in_path.endswith('.h5') else f"{args.in_path}/data.h5", 'r') as f:
     f.visititems(lambda name, obj: create_masks(name, obj, args.mode))
 
 print("Done!")
