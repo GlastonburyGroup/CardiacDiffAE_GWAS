@@ -1,0 +1,262 @@
+####### Explanation of the meta.yaml file
+#Field ID
+    #desctags:
+        #primary_data: List of series descriptions (individual strings) for the primary data
+        #auxiliary_data: List of lists of series descriptions (each sublist containing the different individual strings for that type of data) for the auxiliary data
+        #auxiliary_data_tags (optional, only required if there are auxiliary data): List of tags to be used for the auxilary data 
+    #is_complex: True if the data is complex, False if it is only magnitude
+    #is_3D: [for individual series, the dim(s) present in the actual series when it's read] True if the data is 3D, False if it is 2D
+    #is_dynamic: [for individual series, the dim(s) present in the actual series when it's read] True if the data is dynamic, False if it is not
+    #multi_channel: [for individual series, the dim(s) present in the actual series when it's read] True if the data is multi-channel (e.g. multi-echo, multi-contrast), False if it is not
+    #stack_dim (optional): Which dim to use for stacking the different series together (e.g. if it is dynamic, there will be different series for each time point, so this is the dim to stack them along)
+
+# Please note: the final data should be 5D with the following dimensions: Channel : Time : Slice : X : Y 
+
+#######Brain
+F20253: # T2 FLAIR NII
+    desctags:
+        primary_data: ['T2_FLAIR_orig_defaced', 'T2_FLAIR', 'T2_FLAIR_brain']
+        primary_data_tags: ['OrigFoV', 'ReducedFoV', "Brain"]
+        auxiliary_data: [['T2_FLAIR_brain_to_MNI'], ['T2_FLAIR_unbiased_brain']]
+        auxiliary_data_tags: ['BrainMNI', 'BainUnbiased']
+    default_plane: 'transverse' #axial
+    multi_primary: True
+    repeat_acq: False
+    is_complex: False
+    is_3D: True
+    is_dynamic: False
+    multi_channel: False
+    move_slice_dim: True
+
+F20250: #DTI NII
+    desctags:
+        primary_data: ['dti_FA', 'dti_MD']
+        primary_data_tags: ['FA', 'MD']
+        auxiliary_data: [['dti_L1'], ['dti_L2'], ['dti_L3'], ['dti_V1'], ['dti_V2'], ['dti_V3']]
+        auxiliary_data_tags: ['L1', 'L2', 'L3', 'V1', 'V2', 'V3']
+    default_plane: 'transverse' #axial
+    multi_primary: True
+    repeat_acq: False
+    is_complex: False
+    is_3D: True
+    is_dynamic: False
+    multi_channel: False
+
+F20251: #SWI NII
+    desctags:
+        primary_data: ['SWI', 'T2star']
+        primary_data_tags: ['SWI', 'T2star']
+        auxiliary_data: [['SWI_TOTAL_MAG'], ['filtered_phase']]
+        auxiliary_data_tags: ['SWI_TOTAL_MAG', 'filtered_phase']
+    default_plane: 'transverse' #axial
+    multi_primary: True
+    repeat_acq: False
+    is_complex: False
+    is_3D: True
+    is_dynamic: False
+    multi_channel: False
+
+
+#######Kidney
+F20267: 
+    desctags:
+        primary_data: ['t1_vibe_fs_cor_bh_kidney']
+        auxiliary_data: []
+    default_plane: 'coronal'
+    repeat_acq: True
+    is_complex: False
+    is_3D: True
+    is_dynamic: False
+    multi_channel: False
+
+F20243:
+    desctags: 
+        primary_data: ['ShMOLLI_192i_kidney']
+        auxiliary_data: [['ShMOLLI_192i_kidney_T1MAP'], ['ShMOLLI_192i_kidney_FITPARAMS']]
+        auxiliary_data_tags: ['T1MAP', 'FITPARAMS']
+    default_plane: 'coronal'
+    repeat_acq: True
+    is_complex: True
+    is_3D: False 
+    is_dynamic: False
+    multi_channel: True #7 different TIeff
+
+F20265:
+    desctags: 
+        primary_data: ['t2_haste_tra_p2_kidney']
+    default_plane: 'transverse'
+    repeat_acq: True
+    is_complex: False
+    is_3D: True 
+    is_dynamic: False
+    multi_channel: False
+
+#######Liver
+F20203: 
+    desctags:
+        primary_data: ['gre_mullti_echo_10_TE_liver']
+        auxiliary_data: []
+    default_plane: 'transverse'
+    repeat_acq: True
+    is_complex: True #only for primary
+    is_3D: False #only for individual series, not overall
+    is_dynamic: False #only for individual series, not overall
+    multi_channel: True #only for individual series, not overall #multi-echo x10
+
+F20204: 
+    desctags:
+        primary_data: ['ShMOLLI_192i LIVER', 'ShMOLLI_192i']
+        auxiliary_data: [['ShMOLLI_192i LIVER_T1MAP', 'ShMOLLI_192i_T1MAP'], ['ShMOLLI_192i LIVER_FITPARAMS', 'ShMOLLI_192i_FITPARAMS']]
+        auxiliary_data_tags: ['T1MAP', 'FITPARAMS']
+    default_plane: 'transverse'
+    repeat_acq: True
+    is_complex: True
+    is_3D: False 
+    is_dynamic: False
+    multi_channel: True #7 different TIeff
+
+F20254: 
+    desctags:
+        primary_data: ['LMS IDEAL OPTIMISED LOW FLIP 6DYN']
+        auxiliary_data: []
+    default_plane: 'transverse'
+    repeat_acq: True
+    is_complex: True
+    is_3D: False
+    is_dynamic: False
+    multi_channel: True #multi-echo x6
+    stack_dim: 1 #stack along the time dimension
+
+#######Pancreas
+F20259:
+    desctags: 
+        primary_data: ['ShMOLLI_192i_pancreas']
+        auxiliary_data: [['ShMOLLI_192i_pancreas_T1MAP'], ['ShMOLLI_192i_pancreas_FITPARAMS']]
+        auxiliary_data_tags: ['T1MAP', 'FITPARAMS']
+    default_plane: 'transverse'
+    repeat_acq: True
+    is_complex: True
+    is_3D: False 
+    is_dynamic: False
+    multi_channel: True #7 different TIeff
+
+F20260: 
+    desctags:
+        primary_data: ['gre_mullti_echo_10_TE_pancreas', 'gre_multi_echo_10_TE_pancreas']
+        auxiliary_data: [] #There are the VIBE scans, but 3D. We don't have yet a way to deal with 3D auxiliary in a 2D dataset. Also, that's for 5 out of 44486 subjects. This can be later handled and added to the HDF5 seperately. 
+        #auxiliary_data: [['t1_vibe_fs_tra_bh_pancreas_new', 't1_vibe_fs_tra_bh_pancreas_old']]
+        #auxiliary_data_tags: ['T1_VIBE']
+    default_plane: 'transverse'
+    repeat_acq: True
+    is_complex: True
+    is_3D: False
+    is_dynamic: False
+    multi_channel: True #multi-echo x10
+
+#######Heart
+F20208:
+    desctags:
+        primary_data: ['CINE_segmented_LAX_3Ch', 'CINE_segmented_LAX_4Ch', 'CINE_segmented_LAX_2Ch']
+        primary_data_tags: ['LAX_3Ch', 'LAX_4Ch', 'LAX_2Ch']
+        auxiliary_data: [] 
+    multi_primary: True
+    repeat_acq: True
+    is_complex: False
+    is_3D: False
+    is_dynamic: True #50 TPs, 6-8 heartbeats (the ones I checked)
+    multi_channel: False 
+
+F20209:
+    desctags:
+        primary_data: ['CINE_segmented_SAX_b1', 'CINE_segmented_SAX_b2', 'CINE_segmented_SAX_b3', 'CINE_segmented_SAX_b4', 'CINE_segmented_SAX_b5', 'CINE_segmented_SAX_b6', 'CINE_segmented_SAX_b7', 'CINE_segmented_SAX_b8', 'CINE_segmented_SAX_b9', 'CINE_segmented_SAX_b10', 'CINE_segmented_SAX_b11', 'CINE_segmented_SAX_b12', 'CINE_segmented_SAX_b13', 'CINE_segmented_SAX_b14', 'CINE_segmented_SAX_b15']
+        auxiliary_data: [] 
+    repeat_acq: True
+    is_complex: False
+    is_3D: False
+    is_dynamic: True #50 TPs, 6-8 heartbeats (the ones I checked)
+    multi_channel: False 
+    stack_dim: 2 #stack along the slice dimension
+
+F20214: #It's a big mess, but with the help of Bing AI, filtered only the best possible ones.
+    desctags:
+        primary_data: [['ShMOLLI_192i_SAX_b1s', 'ShMOLLI_192i_B1_SAX_b1s'], ['ShMOLLI_192i_SAX_b2s', 'ShMOLLI_192i_B2_SAX_b2s'], ['ShMOLLI_192i_SAX_b3s', 'ShMOLLI_192i_B3_SAX_b3s']]
+        primary_data_tags: ['SAX_b1s', 'SAX_b2s', 'SAX_b3s']
+        auxiliary_data: [['ShMOLLI_192i_SAX_b1s_SAX_b1s_SAX_b1s_T1MAP', 'ShMOLLI_192i_B1_SAX_b1s_SAX_b1s_SAX_b1s_T1MAP'], 
+                        ['ShMOLLI_192i_SAX_b1s_SAX_b1s_FITPARAMS', 'ShMOLLI_192i_B1_SAX_b1s_SAX_b1s_FITPARAMS'], 
+                        ['ShMOLLI_192i_SAX_b2s_SAX_b2s_SAX_b2s_T1MAP', 'ShMOLLI_192i_B2_SAX_b2s_SAX_b2s_SAX_b2s_T1MAP'], 
+                        ['ShMOLLI_192i_SAX_b2s_SAX_b2s_FITPARAMS', 'ShMOLLI_192i_B2_SAX_b2s_SAX_b2s_FITPARAMS'], 
+                        ['ShMOLLI_192i_SAX_b3s_SAX_b3s_SAX_b3s_T1MAP', 'ShMOLLI_192i_B3_SAX_b3s_SAX_b3s_SAX_b3s_T1MAP'], 
+                        ['ShMOLLI_192i_SAX_b3s_SAX_b3s_FITPARAMS', 'ShMOLLI_192i_B3_SAX_b3s_SAX_b3s_FITPARAMS']]
+        auxiliary_data_tags: ['T1MAP_SAX_b1s', 'FITPARAMS_SAX_b1s', 'T1MAP_SAX_b2s', 'FITPARAMS_SAX_b2s', 'T1MAP_SAX_b3s', 'FITPARAMS_SAX_b3s']
+    multi_primary: True
+    repeat_acq: True
+    is_complex: True
+    is_3D: False 
+    is_dynamic: False
+    multi_channel: True #7 different TIeff
+
+#######Whole Body
+F20158: #DXA
+    desctags:
+        primary_data: ['AP Spine', 'Left Femur', 'Left Ortho Knee', 'LVA', 'Right Femur', 'Right Ortho Knee', 'Total Body Soft Tissue', 'Total Body Skeleton']
+        primary_data_tags: ['APSpine', 'LeftFemur', 'LeftOrthoKnee', 'LVA', 'RightFemur', 'RightOrthoKnee', 'TotalBodySoftTissue', 'TotalBodySkeleton']
+        auxiliary_data: []
+        auxiliary_data_tags: []
+    multi_primary: True
+    repeat_acq: True
+    is_3D: False
+    is_dynamic: False
+    multi_channel: False
+
+########Eye
+F21017: #OCT (left: F21017, right: F21018)
+    desctags:
+        primary_data: ['left', 'right']
+        primary_data_tags: ['left', 'right']
+        auxiliary_data: []
+        auxiliary_data_tags: []
+    multi_primary: True
+    repeat_acq: False
+    is_complex: False
+    is_3D: True
+    is_dynamic: False
+    multi_channel: False
+
+F21015: #Fundus (left: F21015, right: F21016)
+    desctags:
+        primary_data: ['left', 'right']
+        primary_data_tags: ['left', 'right']
+        auxiliary_data: []
+        auxiliary_data_tags: []
+    multi_primary: True
+    repeat_acq: False
+    is_complex: False
+    is_3D: False
+    is_dynamic: False
+    multi_channel: True
+
+F21011: #FDA (left: F21011, right: F21013)
+    desctags:
+        primary_data: ['left', 'right']
+        primary_data_tags: ['left', 'right']
+        auxiliary_data: []
+        auxiliary_data_tags: []
+    multi_primary: True
+    repeat_acq: False
+    is_complex: False
+    is_3D: False
+    is_dynamic: False
+    multi_channel: True
+
+########Dummy
+dummy: #it is based on the F20208
+    desctags:
+        primary_data: ['CINE_segmented_LAX_3Ch', 'CINE_segmented_LAX_4Ch', 'CINE_segmented_LAX_2Ch']
+        primary_data_tags: ['LAX_3Ch', 'LAX_4Ch', 'LAX_2Ch']
+        auxiliary_data: [] 
+    multi_primary: True
+    repeat_acq: True
+    is_complex: False
+    is_3D: False
+    is_dynamic: True #50 TPs, 6-8 heartbeats (the ones I checked)
+    multi_channel: False 

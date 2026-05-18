@@ -1,0 +1,144 @@
+# inputs.yaml
+#
+# Runtime configuration for the GWAS Catalog deposition pipeline.
+# Loaded by master_pipeline.sh / generate_metadata.py.
+#
+# All paths must be absolute. Edit `output_root` if the deposit destination
+# changes; everything else is fixed per the accepted Nat Comms manuscript.
+
+output_root: /project/ukbblatent/results/F20208v3_DiffAE/GWASCat_share
+
+# Phenotype-name remapping: TSV with two columns (header: Latent  x).
+#   - column `Latent` = publication-facing ID (Zx_Sy, e.g. "Z1_S1")
+#   - column `x`      = REGENIE file stem (e.g. "S1701_Z1")
+name_mapping: /group/glastonbury/sara/data/latent_factors/Z_mapping_FINAL.tsv
+
+# Protein-coding gene coordinates (chr<TAB>start<TAB>end<TAB>gene_name)
+# generated from Ensembl 85 GRCh38 GTF. Created in Phase B.
+gene_coords: ${output_root}/manifests/gene_coords.tsv
+
+# Genome build is set per analysis below:
+#   GWAS Discovery / Replication / Sex Interaction = GRCh37 (UKB imputed v3)
+#   EWAS / Burden / SKATO-ACAT                     = GRCh38 (UKB WES release)
+# Analysis software is also set per analysis below:
+#   GWAS Discovery / Replication / Sex Interaction = REGENIE v3.3.0
+#   EWAS / Burden / SKATO-ACAT                     = REGENIE v3.4.1
+
+# Covariate strings (verbatim what we used).
+# - Seven base covariates are shared across every analysis.
+# - Extra covariates appended per analysis below.
+covariates_base: >-
+  genetic sex, age at acquisition, genotyping batch,
+  body surface area (BSA), imaging year, assessment centre, visit number
+
+# Citation / submission text reused in cover letter and metadata.
+publication:
+  status: accepted_in_press
+  journal: Nature Communications
+  preprint_doi: "10.1101/2024.11.04.24316700"
+  preprint_url: "https://doi.org/10.1101/2024.11.04.24316700"
+  project_page: "https://glastonburygroup.github.io/CardiacDiffAE_GWAS/"
+  short_citation: >-
+    Ometto, Chatterjee, et al. "Hundreds of cardiac MRI traits derived using
+    3D diffusion autoencoders share a common genetic architecture."
+    medRxiv 2024.11.04.24316700 (accepted, Nature Communications, in press).
+  embargo_policy: >-
+    Hold all studies until the Nature Communications online publication date,
+    with auto-release on that date. May be released earlier if the paper
+    goes online sooner.
+
+# Proposed EFO
+efo_proposed: "magnetic resonance imaging of the heart"
+
+# -------- Variant-level analyses (GWAS-SSF) --------
+variant_analyses:
+
+  GWAS_Discovery:
+    input_dir: /group/glastonbury/GWAS/F20208v3_DiffAE/select_latents_r80/nNs_Qntl_INF30_DiffAE128_5Sd_r80_discov_fullDSV3/nNs_Qntl_INF30_DiffAE128_5Sd_r80_discov_fullDSV3/nNs_Qntl_INF30_DiffAE128_5Sd_r80_discov_fullDSV3/results/gwas/final_sumstats
+    expected_files: 182
+    analysis_type: "GWAS Discovery"
+    study_prefix: "GWAS_disc"
+    sample_size: 47740
+    ancestry: European
+    ancestry_description: "UK Biobank Caucasian individuals passing phenotypic and genotype QC"
+    genotyping_technology: "Genome-wide genotyping array (UK Biobank Axiom + UK BiLEVE)"
+    genome_build: GRCh37
+    analysis_software: REGENIE v3.3.0
+    extra_covariates: ""   # base seven only
+
+  GWAS_Replication:
+    input_dir: /group/glastonbury/GWAS/F20208v3_DiffAE/select_latents_r80/nNs_Qntl_INF30_DiffAE128_5Sd_r80_replicV2_fullDSV4/nNs_Qntl_INF30_DiffAE128_5Sd_r80_replicV2_fullDSV4_output/nNs_Qntl_INF30_DiffAE128_5Sd_r80_replicV2_fullDSV4/results/gwas/final_sumstats
+    expected_files: 182
+    analysis_type: "GWAS Replication"
+    study_prefix: "GWAS_repl"
+    sample_size: 11907
+    ancestry: multi-ancestry
+    ancestry_description: "UK Biobank, mixed ancestries passing genotype QC; 4,077 Caucasian + 8,319 non-Caucasian"
+    genotyping_technology: "Genome-wide genotyping array (UK Biobank Axiom + UK BiLEVE)"
+    genome_build: GRCh37
+    analysis_software: REGENIE v3.3.0
+    extra_covariates: ""
+
+  GWAS_Sex_Interaction:
+    input_dir: /group/glastonbury/GWAS/F20208v3_DiffAE/select_latents_r80/nNs_Qntl_INF30_DiffAE128_5Sd_r80_discov_fullDSV3/SEXINTERACT/nNs_Qntl_WBRIT_INF30_DiffAE128_5Sd_r80_discov_SexInteract_fullDSV3_output/nNs_Qntl_WBRIT_INF30_DiffAE128_5Sd_r80_discov_SexInteract_fullDSV3/results/gwas/results/gwas_ADD-INT_SNPxSex=1.0/final_sumstats
+    expected_files: 182
+    analysis_type: "Gene-by-Sex Interaction GWAS"
+    study_prefix: "GxSex"
+    sample_size: 47740
+    ancestry: European
+    ancestry_description: "UK Biobank Caucasian individuals passing phenotypic and genotype QC"
+    genotyping_technology: "Genome-wide genotyping array (UK Biobank Axiom + UK BiLEVE)"
+    genome_build: GRCh37
+    analysis_software: REGENIE v3.3.0
+    extra_covariates: "SNP x genetic-sex interaction term (MAF filter < 0.01)"
+    maf_filter: 0.01   # asserted, not re-applied
+
+  EWAS_Discovery:
+    input_dir: /group/glastonbury/soumick/Exome/results/F20208v3_DiffAE_select_latents_r80_discov/EWAS/run3_MAC5_GWASCond_latentwise_chrwise_step1woXom_regenie_step2_results/results/ewas
+    expected_files: 182
+    analysis_type: "Exome-Wide Association Study"
+    study_prefix: "EWAS_disc"
+    sample_size: 46034
+    ancestry: European
+    ancestry_description: "UK Biobank Caucasian individuals passing phenotypic and genotype QC"
+    genotyping_technology: "Whole exome sequencing (UK Biobank 470k WES release)"
+    genome_build: GRCh38
+    analysis_software: REGENIE v3.4.1
+    extra_covariates: >-
+      whole-exome sequencing release tranche (UKB field 32050),
+      per latent x chromosome conditionally independent genome-wide significant GWAS variants
+
+# -------- Gene-level analyses (Beyond SNPs) --------
+gene_analyses:
+
+  Gene_Burden_Discovery:
+    input_dir: /group/glastonbury/soumick/Exome/results/F20208v3_DiffAE_select_latents_r80_discov/BurdenTests/run3_MAC1_step1woXom_1pAAF_CstmDAEMsk_VCs_regenie_step2_burden_results/results/burden/subsets/final_sumstats_burden
+    expected_files: 546
+    analysis_type: "Rare Variant Gene Burden Test"
+    study_prefix: "burden"
+    sample_size: 46134
+    ancestry: European
+    ancestry_description: "UK Biobank Caucasian individuals passing phenotypic and genotype QC"
+    genotyping_technology: "Whole exome sequencing (UK Biobank 470k WES release)"
+    genome_build: GRCh38
+    analysis_software: REGENIE v3.4.1
+    extra_covariates: "whole-exome sequencing release tranche (UKB field 32050)"
+    notes: >-
+      546 files = 182 latents x 3 masks (M1=LoF; M2=LoF+missense 5/5;
+      M3=LoF+missense >=1/5) at AAF < 0.01. Burden carries variants with MAC > 1.
+
+  SKATO_ACAT_Discovery:
+    input_dir: /group/glastonbury/soumick/Exome/results/F20208v3_DiffAE_select_latents_r80_discov/BurdenTests/run3_MAC1_step1woXom_1pAAF_CstmDAEMsk_VCs_regenie_step2_burden_results/results/burden/subsets/final_sumstats_skato_acat
+    expected_files: 546
+    analysis_type: "SKATO-ACAT Rare Variant Test"
+    study_prefix: "SKATO"
+    sample_size: 46134
+    ancestry: European
+    ancestry_description: "UK Biobank Caucasian individuals passing phenotypic and genotype QC"
+    genotyping_technology: "Whole exome sequencing (UK Biobank 470k WES release)"
+    genome_build: GRCh38
+    analysis_software: REGENIE v3.4.1
+    extra_covariates: "whole-exome sequencing release tranche (UKB field 32050)"
+    notes: >-
+      Significance threshold recalculated as p < 4.7e-7. AAF < 0.01,
+      same three masks (M1, M2, M3).
