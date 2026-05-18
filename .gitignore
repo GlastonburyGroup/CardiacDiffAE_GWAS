@@ -154,3 +154,4 @@ visualisations/figures_20254/*
 *.joblib
 *.npy
 *.npz
+ukb_audit_reports/*
