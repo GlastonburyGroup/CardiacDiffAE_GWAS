@@ -1,2 +1,3 @@
-# CardiacDiffAE_GWAS
-Hundreds of cardiac MRI traits derived using 3D diffusion autoencoders share a common genetic architecture
+# Hundreds of cardiac MRI traits derived using 3D diffusion autoencoders share a common genetic architecture
+
+The official code for the paper, "Hundreds of cardiac MRI traits derived using 3D diffusion autoencoders share a common genetic architecture". This repository contains all scripts used in this project, except for the deep learning pipeline (DL-pipeline). It includes scripts for pre-processing raw datasets from the UK Biobank, post-processing and analysing the latent embeddings, as well as conducting downstream analyses. The deep learning pipeline for unsupervised latent phenotyping using the 3D diffusion autoencoder can be found here: https://github.com/GlastonburyGroup/ImLatent.
