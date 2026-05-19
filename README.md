@@ -60,7 +60,8 @@ If this code or any part of the analysis is useful in your work, please cite the
   doi       = {10.1101/2024.11.04.24316700},
   publisher = {Cold Spring Harbor Laboratory Press},
   url       = {https://www.medrxiv.org/content/10.1101/2024.11.04.24316700},
-  journal   = {medRxiv}
+  journal   = {medRxiv},
+  note      = {Ometto and Chatterjee contributed equally. Accepted at Nature Communications.}
 }
 ```
 
