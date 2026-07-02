@@ -4,7 +4,7 @@
 # Loaded by master_pipeline.sh / generate_metadata.py.
 #
 # All paths must be absolute. Edit `output_root` if the deposit destination
-# changes; everything else is fixed per the accepted Nat Comms manuscript.
+# changes; everything else is fixed per the published Nat Comms manuscript.
 
 output_root: /project/ukbblatent/results/F20208v3_DiffAE/GWASCat_share
 
@@ -33,19 +33,21 @@ covariates_base: >-
 
 # Citation / submission text reused in cover letter and metadata.
 publication:
-  status: accepted_in_press
+  status: published
   journal: Nature Communications
+  published_doi: "10.1038/s41467-026-74575-y"
+  published_url: "https://doi.org/10.1038/s41467-026-74575-y"
+  nature_url: "https://www.nature.com/articles/s41467-026-74575-y"
   preprint_doi: "10.1101/2024.11.04.24316700"
   preprint_url: "https://doi.org/10.1101/2024.11.04.24316700"
   project_page: "https://glastonburygroup.github.io/CardiacDiffAE_GWAS/"
   short_citation: >-
     Ometto, Chatterjee, et al. "Hundreds of cardiac MRI traits derived using
     3D diffusion autoencoders share a common genetic architecture."
-    medRxiv 2024.11.04.24316700 (accepted, Nature Communications, in press).
+    Nature Communications (2026). https://doi.org/10.1038/s41467-026-74575-y
   embargo_policy: >-
-    Hold all studies until the Nature Communications online publication date,
-    with auto-release on that date. May be released earlier if the paper
-    goes online sooner.
+    Released. The paper is published in Nature Communications
+    (https://doi.org/10.1038/s41467-026-74575-y); no further embargo applies.
 
 # Proposed EFO
 efo_proposed: "magnetic resonance imaging of the heart"
